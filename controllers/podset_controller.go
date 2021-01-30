@@ -70,7 +70,7 @@ func (r *PodSetReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		}
 		// Error reading object - requeue the requst
 		log.Error(err, "Failed to get PodSet resource.")
-		return ctrl.Result{Requeue: true}, err
+		return ctrl.Result{}, err
 	}
 
 	// Get all pods with label app=podSet.Name
@@ -84,7 +84,7 @@ func (r *PodSetReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		LabelSelector: labels.SelectorFromSet(labelSet),
 	}); err != nil {
 		log.Error(err, "Failed to list pods.")
-		return ctrl.Result{Requeue: true}, err
+		return ctrl.Result{}, err
 	}
 
 	// Get Pod names
@@ -104,7 +104,7 @@ func (r *PodSetReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		podSet.Status = newStatus
 		if err := r.Status().Update(ctx, podSet); err != nil {
 			log.Error(err, "Failed to update PodSet status")
-			return ctrl.Result{Requeue: true}, err
+			return ctrl.Result{}, err
 		}
 	}
 
@@ -115,7 +115,7 @@ func (r *PodSetReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		pod := podList.Items[0]
 		if err := r.Delete(ctx, &pod); err != nil {
 			log.Error(err, "Failed to delete pod")
-			return ctrl.Result{Requeue: true}, err
+			return ctrl.Result{}, err
 		}
 		return ctrl.Result{Requeue: true}, nil
 	}
@@ -128,7 +128,7 @@ func (r *PodSetReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 
 		if err := r.Create(ctx, pod); err != nil {
 			log.Error(err, "Failed to create pod")
-			return ctrl.Result{Requeue: true}, err
+			return ctrl.Result{}, err
 		}
 		return ctrl.Result{Requeue: true}, nil
 	}
