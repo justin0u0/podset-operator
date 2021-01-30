@@ -1,0 +1,7 @@
+apiVersion: k8stest.justin0u0.com/v1alpha1
+kind: PodSet
+metadata:
+  name: podset-sample
+spec:
+  # Add fields here
+  foo: bar

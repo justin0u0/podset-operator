@@ -1,0 +1,20 @@
+# permissions for end users to view podsets.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: podset-viewer-role
+rules:
+- apiGroups:
+  - k8stest.justin0u0.com
+  resources:
+  - podsets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - k8stest.justin0u0.com
+  resources:
+  - podsets/status
+  verbs:
+  - get

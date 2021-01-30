@@ -1,0 +1,13 @@
+domain: justin0u0.com
+layout: go.kubebuilder.io/v3
+projectName: podset-operator
+repo: github.com/justin0u0/podset-operator
+resources:
+- crdVersion: v1
+  group: k8stest
+  kind: PodSet
+  version: v1alpha1
+version: 3-alpha
+plugins:
+  manifests.sdk.operatorframework.io/v2: {}
+  scorecard.sdk.operatorframework.io/v2: {}
