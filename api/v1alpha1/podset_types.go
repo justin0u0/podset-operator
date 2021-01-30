@@ -36,7 +36,7 @@ type PodSetStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	Replicas int32 `json:"replicas"`
+	Replicas int32    `json:"replicas"`
 	PodNames []string `json:"pod_names"`
 }
 

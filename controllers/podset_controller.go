@@ -64,8 +64,8 @@ func (r *PodSetReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		if errors.IsNotFound(err) {
 			// Request object not found, could have been deleted after reconcile request.
 			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
-			// Return and don't requeue 
-			log.Info("PodSet resource not found. Ingoring since object must be deleted.")	
+			// Return and don't requeue
+			log.Info("PodSet resource not found. Ingoring since object must be deleted.")
 			return ctrl.Result{}, nil
 		}
 		// Error reading object - requeue the requst
@@ -76,11 +76,11 @@ func (r *PodSetReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	// Get all pods with label app=podSet.Name
 	podList := &corev1.PodList{}
 	labelSet := labels.Set{
-		"app": "podset",
+		"app":       "podset",
 		"podset_cr": podSet.Name, // podSet.ObjectMeta.Name
 	}
 	if err := r.List(ctx, podList, &client.ListOptions{
-		Namespace: req.Name, // req.NamespacedName.Name
+		Namespace:     req.Name, // req.NamespacedName.Name
 		LabelSelector: labels.SelectorFromSet(labelSet),
 	}); err != nil {
 		log.Error(err, "Failed to list pods.")
@@ -92,9 +92,9 @@ func (r *PodSetReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	for _, pod := range podList.Items {
 		podNames = append(podNames, pod.Name)
 	}
-	log.Info("Running pods", podNames)
-	log.Info("Excepting replicas", podSet.Spec.Replicas)
-	log.Info("Current replicas", len(podNames))
+	log.Info("Running pods", "PodNames", podNames)
+	log.Info("Excepting replicas", "PodSet.Spec.Replicas", podSet.Spec.Replicas)
+	log.Info("Current replicas", "len(PodNames)", len(podNames))
 
 	// Update status if needed
 	if newStatus := (k8stestv1alpha1.PodSetStatus{
@@ -111,34 +111,43 @@ func (r *PodSetReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	// Scale down pods
 	if int32(len(podNames)) > podSet.Spec.Replicas {
 		// Delete a pod once a time
-		log.Info("Deleting a Pod in the PodSet", podSet.Name)
+		log.Info("Deleting a Pod in the PodSet", "PodSet.Name", podSet.Name)
 		pod := podList.Items[0]
 		if err := r.Delete(ctx, &pod); err != nil {
 			log.Error(err, "Failed to delete pod")
 			return ctrl.Result{Requeue: true}, err
 		}
+		return ctrl.Result{Requeue: true}, nil
 	}
 
 	// Scale up pods
 	if int32(len(podNames)) < podSet.Spec.Replicas {
 		// Create a pod once a time
-		log.Info("Creating a Pod in the PodSet", podSet.Name)
+		log.Info("Creating a Pod in the PodSet", "PodSet.Name", podSet.Name)
+		pod := r.podForPodSet(podSet)
+
+		if err := r.Create(ctx, pod); err != nil {
+			log.Error(err, "Failed to create pod")
+			return ctrl.Result{Requeue: true}, err
+		}
+		return ctrl.Result{Requeue: true}, nil
 	}
 
-	return ctrl.Result{Requeue: true}, nil
+	// All settled, no need requeue
+	return ctrl.Result{}, nil
 }
 
-func (r* PodSetReconciler) podForPodSet(podSet *k8stestv1alpha1.PodSet) *corev1.Pod {
+func (r *PodSetReconciler) podForPodSet(podSet *k8stestv1alpha1.PodSet) *corev1.Pod {
 	labels := map[string]string{
-		"app": "podset",
+		"app":       "podset",
 		"podset_cr": podSet.Name,
 	}
 
 	return &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: podSet.Name + strconv.FormatInt(time.Now().Unix(), 36),
+			Name:      podSet.Name + strconv.FormatInt(time.Now().Unix(), 36),
 			Namespace: podSet.Namespace,
-			Labels: labels,
+			Labels:    labels,
 		},
 		Spec: corev1.PodSpec{
 			Containers: []corev1.Container{
