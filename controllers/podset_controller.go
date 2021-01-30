@@ -87,19 +87,23 @@ func (r *PodSetReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		return ctrl.Result{}, err
 	}
 
-	// Get Pod names
-	podNames := []string{}
+	// Get all running pods
+	runningPods := []corev1.Pod{}
+	runningPodNames := []string{}
 	for _, pod := range podList.Items {
-		podNames = append(podNames, pod.Name)
+		if pod.ObjectMeta.DeletionTimestamp == nil && (pod.Status.Phase == corev1.PodPending || pod.Status.Phase == corev1.PodRunning) {
+			runningPods = append(runningPods, pod)
+			runningPodNames = append(runningPodNames, pod.Name)
+		}
 	}
-	log.Info("Running pods", "PodNames", podNames)
+	log.Info("Running pods", "runningPodNames", runningPodNames)
 	log.Info("Excepting replicas", "PodSet.Spec.Replicas", podSet.Spec.Replicas)
-	log.Info("Current replicas", "len(PodNames)", len(podNames))
+	log.Info("Current replicas", "len(runningPodNames)", len(runningPodNames))
 
 	// Update status if needed
 	if newStatus := (k8stestv1alpha1.PodSetStatus{
-		Replicas: int32(len(podNames)),
-		PodNames: podNames,
+		Replicas: int32(len(runningPodNames)),
+		PodNames: runningPodNames,
 	}); !reflect.DeepEqual(podSet.Status, newStatus) {
 		podSet.Status = newStatus
 		if err := r.Status().Update(ctx, podSet); err != nil {
@@ -109,10 +113,10 @@ func (r *PodSetReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	}
 
 	// Scale down pods
-	if int32(len(podNames)) > podSet.Spec.Replicas {
+	if int32(len(runningPodNames)) > podSet.Spec.Replicas {
 		// Delete a pod once a time
 		log.Info("Deleting a Pod in the PodSet", "PodSet.Name", podSet.Name)
-		pod := podList.Items[0]
+		pod := runningPods[0]
 		if err := r.Delete(ctx, &pod); err != nil {
 			log.Error(err, "Failed to delete pod")
 			return ctrl.Result{}, err
@@ -121,7 +125,7 @@ func (r *PodSetReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	}
 
 	// Scale up pods
-	if int32(len(podNames)) < podSet.Spec.Replicas {
+	if int32(len(runningPodNames)) < podSet.Spec.Replicas {
 		// Create a pod once a time
 		log.Info("Creating a Pod in the PodSet", "PodSet.Name", podSet.Name)
 		pod := r.podForPodSet(podSet)
