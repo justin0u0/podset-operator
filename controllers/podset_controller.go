@@ -80,7 +80,7 @@ func (r *PodSetReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		"podset_cr": podSet.Name, // podSet.ObjectMeta.Name
 	}
 	if err := r.List(ctx, podList, &client.ListOptions{
-		Namespace:     req.Name, // req.NamespacedName.Name
+		Namespace:     req.Namespace, // req.NamespacedName.Namespace
 		LabelSelector: labels.SelectorFromSet(labelSet),
 	}); err != nil {
 		log.Error(err, "Failed to list pods.")
@@ -143,9 +143,9 @@ func (r *PodSetReconciler) podForPodSet(podSet *k8stestv1alpha1.PodSet) *corev1.
 		"podset_cr": podSet.Name,
 	}
 
-	return &corev1.Pod{
+	pod := &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      podSet.Name + strconv.FormatInt(time.Now().Unix(), 36),
+			Name:      podSet.Name + "-" + strconv.FormatInt(time.Now().UnixNano(), 36),
 			Namespace: podSet.Namespace,
 			Labels:    labels,
 		},
@@ -159,6 +159,9 @@ func (r *PodSetReconciler) podForPodSet(podSet *k8stestv1alpha1.PodSet) *corev1.
 			},
 		},
 	}
+
+	ctrl.SetControllerReference(podSet, pod, r.Scheme)
+	return pod
 }
 
 // SetupWithManager sets up the controller with the Manager.
