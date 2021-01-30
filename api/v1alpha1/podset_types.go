@@ -28,14 +28,16 @@ type PodSetSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of PodSet. Edit PodSet_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	Replicas int32 `json:"replicas"`
 }
 
 // PodSetStatus defines the observed state of PodSet
 type PodSetStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+
+	Replicas int32 `json:"replicas"`
+	PodNames []string `json:"pod_names"`
 }
 
 // +kubebuilder:object:root=true
@@ -53,6 +55,7 @@ type PodSet struct {
 // +kubebuilder:object:root=true
 
 // PodSetList contains a list of PodSet
+// +kubebuilder:subresource:status
 type PodSetList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
