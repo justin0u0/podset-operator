@@ -13,4 +13,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: justin0u0/podset-operator
-  newTag: v0.0.2
+  newTag: v0.0.3

@@ -15,6 +15,7 @@ rules:
   - delete
   - get
   - list
+  - watch
 - apiGroups:
   - k8stest.justin0u0.com
   resources:
