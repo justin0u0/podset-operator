@@ -45,7 +45,7 @@ type PodSetReconciler struct {
 // +kubebuilder:rbac:groups=k8stest.justin0u0.com,resources=podsets,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=k8stest.justin0u0.com,resources=podsets/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=k8stest.justin0u0.com,resources=podsets/finalizers,verbs=update
-// +kubebuilder:rbac:groups=core,resources=pods,verbs=get;list;create;delete
+// +kubebuilder:rbac:groups=core,resources=pods,verbs=get;list;create;delete;watch
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -173,9 +173,9 @@ func (r *PodSetReconciler) podForPodSet(podSet *k8stestv1alpha1.PodSet) *corev1.
 func (r *PodSetReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&k8stestv1alpha1.PodSet{}).
-    Owns(&corev1.Pod{}).
-    WithOptions(controller.Options{
-      MaxConcurrentReconciles: 2,
-    }).
+		Owns(&corev1.Pod{}).
+		WithOptions(controller.Options{
+			MaxConcurrentReconciles: 2,
+		}).
 		Complete(r)
 }
