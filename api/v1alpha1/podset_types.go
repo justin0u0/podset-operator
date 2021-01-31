@@ -25,19 +25,19 @@ import (
 
 // PodSetSpec defines the desired state of PodSet
 type PodSetSpec struct {
-  // INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-  // Important: Run "make" to regenerate code after modifying this file
+	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
+	// Important: Run "make" to regenerate code after modifying this file
 
-  Replicas int32 `json:"replicas"`
+	Replicas int32 `json:"replicas"`
 }
 
 // PodSetStatus defines the observed state of PodSet
 type PodSetStatus struct {
-  // INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-  // Important: Run "make" to regenerate code after modifying this file
+	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
+	// Important: Run "make" to regenerate code after modifying this file
 
-  Replicas int32    `json:"replicas"`
-  PodNames []string `json:"pod_names"`
+	Replicas int32    `json:"replicas"`
+	PodNames []string `json:"pod_names"`
 }
 
 // +kubebuilder:object:root=true
@@ -45,11 +45,11 @@ type PodSetStatus struct {
 
 // PodSet is the Schema for the podsets API
 type PodSet struct {
-  metav1.TypeMeta   `json:",inline"`
-  metav1.ObjectMeta `json:"metadata,omitempty"`
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-  Spec   PodSetSpec   `json:"spec,omitempty"`
-  Status PodSetStatus `json:"status,omitempty"`
+	Spec   PodSetSpec   `json:"spec,omitempty"`
+	Status PodSetStatus `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true
@@ -57,11 +57,11 @@ type PodSet struct {
 // PodSetList contains a list of PodSet
 // +kubebuilder:subresource:status
 type PodSetList struct {
-  metav1.TypeMeta `json:",inline"`
-  metav1.ListMeta `json:"metadata,omitempty"`
-  Items           []PodSet `json:"items"`
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata,omitempty"`
+	Items           []PodSet `json:"items"`
 }
 
 func init() {
-  SchemeBuilder.Register(&PodSet{}, &PodSetList{})
+	SchemeBuilder.Register(&PodSet{}, &PodSetList{})
 }
