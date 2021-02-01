@@ -26,7 +26,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/controller"
 
 	k8stestv1alpha1 "github.com/justin0u0/podset-operator/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
@@ -174,8 +173,5 @@ func (r *PodSetReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&k8stestv1alpha1.PodSet{}).
 		Owns(&corev1.Pod{}).
-		WithOptions(controller.Options{
-			MaxConcurrentReconciles: 2,
-		}).
 		Complete(r)
 }
